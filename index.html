@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0A0A0B">
-<title>LIFT 3 v1 — Arthur Assis</title>
+<title>LIFT 3 v2 — Arthur Assis</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -281,7 +281,7 @@ select.hsel{background:var(--bg2);border:1px solid var(--bd);border-radius:var(-
 <div class="nav">
   <div class="nav-top">
     <div>
-      <div class="nav-logo">LIFT 3<span> v1</span></div>
+      <div class="nav-logo">LIFT 3<span> v2</span></div>
       <div class="nav-identity">
         <span class="nav-caduceus">⚕</span>
         <span class="nav-name">Arthur Assis</span>
@@ -292,6 +292,7 @@ select.hsel{background:var(--bg2);border:1px solid var(--bd);border-radius:var(-
   <div class="nav-tabs">
     <button class="ntab on" onclick="showPg('log',this)">Registrar</button>
     <button class="ntab" onclick="showPg('hist',this)">Histórico</button>
+    <button class="ntab" onclick="showPg('cardio',this)">Cardio</button>
     <button class="ntab" onclick="showPg('peso',this)">Peso</button>
   </div>
   <div id="timer-bar">
@@ -384,25 +385,6 @@ select.hsel{background:var(--bg2);border:1px solid var(--bd);border-radius:var(-
     </div>
     <div id="lhint"></div>
     <div id="excards"></div>
-    <div class="cardio-block" id="cardio-block">
-      <div class="cardio-title">Cardio</div>
-      <div class="cardio-row">
-        <div class="cardio-field">
-          <div class="cardio-lbl">Duração (min)</div>
-          <input class="cardio-inp" id="cardio-min" type="number" inputmode="numeric" placeholder="0" min="0" max="180">
-        </div>
-        <div class="cardio-field">
-          <div class="cardio-lbl">Tipo</div>
-          <input class="cardio-inp" id="cardio-type" type="text" placeholder="Esteira, bike..." style="font-family:var(--font);font-size:14px;text-align:left;padding:0 10px">
-        </div>
-      </div>
-      <div class="cardio-lbl" style="margin-top:12px">Intensidade</div>
-      <div class="cardio-intensity">
-        <button class="ci-btn" id="ci-low"  onclick="setCI('low')" >Leve</button>
-        <button class="ci-btn" id="ci-med"  onclick="setCI('med')" >Média</button>
-        <button class="ci-btn" id="ci-high" onclick="setCI('high')">Alta</button>
-      </div>
-    </div>
     <div class="btm-btns">
       <button class="btn btn-ghost" onclick="cancel()">Cancelar</button>
       <button class="btn btn-primary" onclick="save2()">Salvar treino ✓</button>
@@ -426,6 +408,35 @@ select.hsel{background:var(--bg2);border:1px solid var(--bd);border-radius:var(-
 </div>
 
 <!-- PROG -->
+<!-- CARDIO -->
+<div class="pg" id="pg-cardio">
+  <div style="font-family:var(--font-disp);font-size:30px;letter-spacing:.04em;margin-bottom:4px">Cardio</div>
+  <div style="font-size:12px;color:var(--mt);margin-bottom:20px">Registre suas sessões de cardio, separadas dos treinos de força</div>
+  <div class="cardio-block" style="margin:0 0 16px">
+    <div class="cardio-row">
+      <div class="cardio-field">
+        <div class="cardio-lbl">Duração (min)</div>
+        <input class="cardio-inp" id="cd-min" type="number" inputmode="numeric" placeholder="0" min="0" max="180">
+      </div>
+      <div class="cardio-field">
+        <div class="cardio-lbl">Data</div>
+        <input class="cardio-inp" id="cd-date" type="date" style="font-family:var(--font);font-size:13px">
+      </div>
+    </div>
+    <div class="cardio-lbl" style="margin-top:12px">Tipo</div>
+    <input class="cardio-inp" id="cd-type" type="text" placeholder="Esteira, bike, elíptico..." style="font-family:var(--font);font-size:14px;text-align:left;padding:0 10px">
+    <div class="cardio-lbl" style="margin-top:12px">Intensidade</div>
+    <div class="cardio-intensity">
+      <button class="ci-btn" id="cd-low"  onclick="setCDI('low')" >Leve</button>
+      <button class="ci-btn" id="cd-med"  onclick="setCDI('med')" >Média</button>
+      <button class="ci-btn" id="cd-high" onclick="setCDI('high')">Alta</button>
+    </div>
+    <button class="bw-save-btn" style="width:100%;margin-top:14px" onclick="saveCardio()">+ Salvar sessão</button>
+  </div>
+  <div class="srow" id="cardio-stats"></div>
+  <div id="cardio-list" class="bw-list"></div>
+</div>
+
 <!-- PESO -->
 <div class="pg" id="pg-peso">
   <div style="font-family:var(--font-disp);font-size:30px;letter-spacing:.04em;margin-bottom:4px">Peso Corporal</div>
@@ -546,7 +557,7 @@ const DAY_META={
   'Posterior':{day:'QUI',icon:'🦶',sub:'Posterior · Adutores · Panturrilha'}
 };
 
-let wks=[],bwLog=[],curMuscle='',curDate='',curSets={};
+let wks=[],bwLog=[],cardioLog=[],curMuscle='',curDate='',curSets={};
 let delId=null,delType='wk';
 let bwci=null;
 
@@ -690,7 +701,7 @@ function toast(msg,type){
 // sv() persiste no localStorage E confere lendo de volta, para nunca falhar em silêncio.
 function sv(){
   try{
-    const payload=JSON.stringify({wks,bwLog});
+    const payload=JSON.stringify({wks,bwLog,cardioLog});
     localStorage.setItem(SK,payload);
     const check=localStorage.getItem(SK);
     if(check!==payload)throw new Error('Verificação de escrita falhou');
@@ -715,7 +726,7 @@ function applyRenames(){
     });
   });
 }
-function ld(){try{const r=localStorage.getItem(SK);if(r){const d=JSON.parse(r);wks=d.wks||[];bwLog=d.bwLog||[];applyRenames();sv();}}catch(e){wks=[];bwLog=[];}}
+function ld(){try{const r=localStorage.getItem(SK);if(r){const d=JSON.parse(r);wks=d.wks||[];bwLog=d.bwLog||[];cardioLog=d.cardioLog||[];applyRenames();sv();}}catch(e){wks=[];bwLog=[];cardioLog=[];}}
 
 // ── NAV ────────────────────────────────────────────────────────────────
 const nd=new Date();
@@ -728,6 +739,7 @@ function showPg(id,btn){
   btn.classList.add('on');
   if(id==='hist')renderHist();
   if(id==='log')renderStats();
+  if(id==='cardio'){renderCardio();document.getElementById('cd-date').value=new Date().toISOString().slice(0,10);}
   if(id==='peso')renderBW();
 }
 
@@ -956,20 +968,43 @@ function cancel(){
   document.getElementById('timer-bar').classList.remove('on');
   rstWk();rstRest();
 }
-// ── CARDIO ─────────────────────────────────────────────────────────────
-let curCI='';
-function setCI(v){
-  curCI=curCI===v?'':v;
+// ── CARDIO (aba separada, não atrelada a treino de força) ────────────────
+let curCDI='';
+function setCDI(v){
+  curCDI=curCDI===v?'':v;
   ['low','med','high'].forEach(k=>{
-    const b=document.getElementById('ci-'+k);
-    b.className='ci-btn'+(curCI===k?' on-'+k:'');
+    const b=document.getElementById('cd-'+k);
+    b.className='ci-btn'+(curCDI===k?' on-'+k:'');
   });
 }
-function resetCardio(){
-  document.getElementById('cardio-min').value='';
-  document.getElementById('cardio-type').value='';
-  curCI='';
-  ['low','med','high'].forEach(k=>document.getElementById('ci-'+k).className='ci-btn');
+function saveCardio(){
+  const min=parseInt(document.getElementById('cd-min').value)||0;
+  const date=document.getElementById('cd-date').value||new Date().toISOString().slice(0,10);
+  const type=document.getElementById('cd-type').value.trim();
+  if(min<=0){toast('Informe a duração do cardio.','error');return}
+  cardioLog.unshift({id:Date.now(),date,min,type:type||null,intensity:curCDI||null});
+  const ok=sv();
+  if(!ok){cardioLog.shift();toast('Não foi possível salvar. Tente de novo.','error');return}
+  document.getElementById('cd-min').value='';
+  document.getElementById('cd-type').value='';
+  curCDI='';
+  ['low','med','high'].forEach(k=>document.getElementById('cd-'+k).className='ci-btn');
+  renderCardio();renderStats();
+  toast('Cardio salvo ✓','ok');
+}
+function renderCardio(){
+  const statsEl=document.getElementById('cardio-stats');
+  const ws=wkS2(new Date().toISOString().slice(0,10));
+  const weekMin=cardioLog.filter(c=>c.date>=ws).reduce((s,c)=>s+c.min,0);
+  const totalMin=cardioLog.reduce((s,c)=>s+c.min,0);
+  statsEl.innerHTML=`
+    <div class="sc"><div class="sl">Semana</div><div class="sv" style="color:var(--bl)">${weekMin}</div><div class="ss2">min</div></div>
+    <div class="sc"><div class="sl">Sessões</div><div class="sv">${cardioLog.length}</div><div class="ss2">total</div></div>
+    <div class="sc"><div class="sl">Acumulado</div><div class="sv" style="color:var(--gn)">${totalMin}</div><div class="ss2">min total</div></div>`;
+  const listEl=document.getElementById('cardio-list');
+  if(!cardioLog.length){listEl.innerHTML='<div class="empty"><div class="empty-icon">🫀</div><div class="empty-txt">Nenhuma sessão registrada ainda.</div></div>';return}
+  const intLbl={low:'Leve',med:'Média',high:'Alta'};
+  listEl.innerHTML=cardioLog.map(c=>`<div class="bw-row"><div><div class="bw-row-date">${fmt(c.date)}</div><div class="ss2">${c.type||'Cardio'}${c.intensity?' · '+intLbl[c.intensity]:''}</div></div><div style="display:flex;align-items:center"><span class="bw-row-val">${c.min}min</span><button class="bw-row-del" onclick="openDel('cardio',${c.id})">×</button></div></div>`).join('');
 }
 
 function save2(){
@@ -988,10 +1023,7 @@ function save2(){
       toast('Nenhuma série preenchida — treino não foi salvo.','error');
       return;
     }
-    const cardioMin=parseInt(document.getElementById('cardio-min').value)||0;
-    const cardioType=document.getElementById('cardio-type').value.trim();
-    const cardio=cardioMin>0?{min:cardioMin,type:cardioType||null,intensity:curCI||null}:null;
-    wks.unshift({id:Date.now(),name:curMuscle,muscle:curMuscle,date:curDate,exercises,dur:Math.floor(ms/1000),cardio});
+    wks.unshift({id:Date.now(),name:curMuscle,muscle:curMuscle,date:curDate,exercises,dur:Math.floor(ms/1000),cardio:null});
     const ok=sv();
     if(!ok){
       // reverte para não deixar o treino "preso" só na memória, sem duplicar ao tentar de novo
@@ -999,7 +1031,7 @@ function save2(){
       toast('Não foi possível salvar o treino. Tente de novo (verifique o espaço de armazenamento do navegador).','error');
       return; // NÃO reseta a tela — os dados digitados continuam intactos para nova tentativa
     }
-    resetCardio();cancel();renderStats();renderDayGrid();
+    cancel();renderStats();renderDayGrid();
     toast('Treino salvo ✓','ok');
   }catch(e){
     console.error('Erro inesperado ao salvar treino:',e);
@@ -1012,7 +1044,7 @@ function vol(w){return w.exercises.reduce((s,ex)=>s+ex.sets.reduce((a,st)=>a+par
 function wkS2(d){const dt=new Date(d+'T12:00:00');dt.setHours(0,0,0,0);const day=dt.getDay(),df=dt.getDate()-day+(day===0?-6:1);return new Date(dt.setDate(df)).toISOString().slice(0,10)}
 function renderStats(){
   const tot=wks.length,ws=wkS2(new Date().toISOString().slice(0,10));
-  const cardioMin=wks.filter(w=>w.date>=ws&&w.cardio).reduce((s,w)=>s+w.cardio.min,0);
+  const cardioMin=cardioLog.filter(c=>c.date>=ws).reduce((s,c)=>s+c.min,0);
   const ov=overdueGroup();
   document.getElementById('stats').innerHTML=`
     <div class="sc"><div class="sl">Treinos</div><div class="sv" style="color:var(--ac)">${tot}</div><div class="ss2">total</div></div>
@@ -1161,6 +1193,7 @@ function openDel(type,id){delType=type;delId=id;document.getElementById('dmod').
 function closeMod(){document.getElementById('dmod').classList.remove('on');delId=null;}
 function modalConfirm(){
   if(delType==='wk'){wks=wks.filter(w=>w.id!==delId);sv();closeMod();renderHist();renderStats();renderDayGrid();}
+  else if(delType==='cardio'){cardioLog=cardioLog.filter(c=>c.id!==delId);sv();closeMod();renderCardio();renderStats();}
   else if(delType==='bw'){bwLog=bwLog.filter(e=>e.date!==delId);sv();closeMod();renderBW();}
 }
 
