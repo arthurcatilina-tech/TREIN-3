@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0A0A0B">
-<title>LIFT 3 v2 — Arthur Assis</title>
+<title>LIFT 3 v4 — Arthur Assis</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -281,7 +281,7 @@ select.hsel{background:var(--bg2);border:1px solid var(--bd);border-radius:var(-
 <div class="nav">
   <div class="nav-top">
     <div>
-      <div class="nav-logo">LIFT 3<span> v2</span></div>
+      <div class="nav-logo">LIFT 3<span> v4</span></div>
       <div class="nav-identity">
         <span class="nav-caduceus">⚕</span>
         <span class="nav-name">Arthur Assis</span>
@@ -491,36 +491,6 @@ const PRIORITY_EX=new Set([
 // range: string hint como "4-8", "6-10" etc
 // sets: nº de séries a pré-carregar ao iniciar o treino (opcional, default 1)
 const TPL={
-  'Peito':[
-    {g:'Peito',ex:[
-      {name:'Supino inclinado halteres',type:'normal',range:'8-12'},
-      {name:'Chest press convergente (máquina)',type:'normal',range:'8-12'},
-      {name:'Peck deck',type:'normal',range:'10-15'}
-    ]},
-    {g:'Ombros',ex:[
-      {name:'Desenvolvimento',type:'normal',range:'6-10'}
-    ]},
-    {g:'Tríceps',ex:[
-      {name:'Tríceps francês na polia',type:'normal',range:'8-12'},
-      {name:'Tríceps testa na polia',type:'normal',range:'8-12'},
-      {name:'Tríceps na polia',type:'normal',range:'10-15'}
-    ]}
-  ],
-  'Costas':[
-    {g:'Costas',ex:[
-      {name:'Barra pegada pronada',type:'normal',range:'6-10'},
-      {name:'Serrote',type:'normal',range:'8-12'},
-      {name:'Puxada triângulo',type:'normal',range:'8-12'},
-      {name:'Puxada unilateral',type:'normal',range:'10-12'}
-    ]},
-    {g:'Ombros',ex:[
-      {name:'Elevação lateral',type:'normal',range:'12-15'}
-    ]},
-    {g:'Bíceps',ex:[
-      {name:'Rosca concentrada',type:'normal',range:'8-12'},
-      {name:'Rosca inclinada',type:'normal',range:'8-12'}
-    ]}
-  ],
   'Quadríceps':[
     {g:'Quadríceps',ex:[
       {name:'Agachamento',type:'normal',range:'6-10'},
@@ -535,6 +505,21 @@ const TPL={
       {name:'Panturrilha',type:'normal',range:'10-15'}
     ]}
   ],
+  'Peito':[
+    {g:'Peito',ex:[
+      {name:'Supino inclinado halteres',type:'normal',range:'8-12'},
+      {name:'Chest press convergente (máquina)',type:'normal',range:'8-12'},
+      {name:'Peck deck',type:'normal',range:'10-15'}
+    ]},
+    {g:'Ombros',ex:[
+      {name:'Elevação lateral',type:'normal',range:'12-15'}
+    ]},
+    {g:'Tríceps',ex:[
+      {name:'Tríceps francês na polia',type:'normal',range:'8-12'},
+      {name:'Tríceps testa na polia',type:'normal',range:'8-12'},
+      {name:'Tríceps na polia',type:'normal',range:'10-15'}
+    ]}
+  ],
   'Posterior':[
     {g:'Posterior',ex:[
       {name:'Stiff',type:'normal',range:'8-12',sets:4},
@@ -547,14 +532,29 @@ const TPL={
     {g:'Panturrilha',ex:[
       {name:'Panturrilha',type:'normal',range:'10-15'}
     ]}
+  ],
+  'Costas':[
+    {g:'Costas',ex:[
+      {name:'Barra pegada pronada',type:'normal',range:'6-10'},
+      {name:'Serrote',type:'normal',range:'8-12'},
+      {name:'Puxada triângulo',type:'normal',range:'8-12'},
+      {name:'Puxada unilateral',type:'normal',range:'10-12'}
+    ]},
+    {g:'Ombros',ex:[
+      {name:'Desenvolvimento',type:'normal',range:'6-10'}
+    ]},
+    {g:'Bíceps',ex:[
+      {name:'Rosca concentrada',type:'normal',range:'8-12'},
+      {name:'Rosca inclinada',type:'normal',range:'8-12'}
+    ]}
   ]
 };
 
 const DAY_META={
-  'Peito':{day:'SEG',icon:'💪',sub:'Peito · Ombros · Tríceps'},
-  'Costas':{day:'TER',icon:'🔝',sub:'Costas · Ombros · Bíceps'},
-  'Quadríceps':{day:'QUA',icon:'🦵',sub:'Quadríceps · Abdutores · Panturrilha'},
-  'Posterior':{day:'QUI',icon:'🦶',sub:'Posterior · Adutores · Panturrilha'}
+  'Quadríceps':{day:'SEG',icon:'🦵',sub:'Quadríceps · Abdutores · Panturrilha'},
+  'Peito':{day:'TER',icon:'💪',sub:'Peito · Ombros · Tríceps'},
+  'Posterior':{day:'QUA',icon:'🦶',sub:'Posterior · Adutores · Panturrilha'},
+  'Costas':{day:'QUI',icon:'🔝',sub:'Costas · Ombros · Bíceps'}
 };
 
 let wks=[],bwLog=[],cardioLog=[],curMuscle='',curDate='',curSets={};
@@ -746,7 +746,7 @@ function showPg(id,btn){
 // ── PRÓXIMO TREINO SUGERIDO ───────────────────────────────────────────
 // Sem dias fixos: a sugestão segue a rotação a partir do último treino
 // CONCLUÍDO (por ordem real de registro, não pela data escolhida manualmente).
-const ORDER=['Peito','Quadríceps','Costas','Posterior'];
+const ORDER=['Quadríceps','Peito','Posterior','Costas'];
 
 function lastCompletedWk(){
   if(!wks.length)return null;
